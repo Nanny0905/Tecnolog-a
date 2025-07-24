@@ -2,203 +2,256 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Malla Curricular - Tecnología Médica</title>
+  <title>Malla Interactiva – Tecnología Médica – UCV</title>
   <style>
-    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fff5f8;
       margin: 0;
-      padding: 0;
+      background: #f7f9fc;
     }
     header {
-      background-color: #d63384;
+      text-align: center;
+      padding: 1.5rem;
+      background: #e91e63;
       color: white;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
     }
     header h1 {
       margin: 0;
-      font-size: 1.5em;
+      font-size: 1.8rem;
     }
-    #progress {
-      font-size: 0.9em;
+    header p {
+      margin: 0.3rem 0 0;
+      font-size: 1rem;
     }
-    #resetBtn {
-      background: white;
-      color: #d63384;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .stats {
+      text-align: center;
+      margin: 1rem;
       font-weight: bold;
     }
-    main {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      padding: 20px;
+    .stats span {
+      margin: 0 1rem;
     }
-    .ciclo {
-      background: #ffe3ed;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .ciclo h2 {
-      text-align: center;
-      margin-top: 0;
-      color: #c2185b;
-    }
-    .curso {
-      background: white;
-      margin: 8px 0;
-      padding: 10px;
-      border-left: 5px solid #c2185b;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .curso:hover {
-      background: #fce4ec;
-    }
-    .aprobado {
-      text-decoration: line-through;
-      background-color: #d4edda;
-      border-left-color: #28a745;
-      color: #155724;
-    }
-    .bloqueado {
-      background-color: #f8d7da;
-      border-left-color: #c82333;
-      color: #721c24;
-      cursor: not-allowed;
-    }
-    .curso small {
+    .reset-btn {
       display: block;
-      color: #555;
+      margin: 0 auto 1rem;
+      padding: 0.5rem 1rem;
+      background: #e91e63;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .grid {
+      display: flex;
+      overflow-x: auto;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .cycle {
+      background: #fce4ec;
+      border-radius: 6px;
+      padding: 0.5rem;
+      min-width: 220px;
+      flex-shrink: 0;
+    }
+    .cycle h2 {
+      background: #f06292;
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 4px;
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+    }
+    .subject {
+      background: #ffffff;
+      border-left: 4px solid #1976d2;
+      padding: 0.5rem;
+      margin: 0.4rem 0;
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      font-size: 0.9rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .subject.locked {
+      background: #f8d7da;
+      cursor: not-allowed;
+      color: #a94442;
+    }
+    .subject.completed {
+      background: #c8e6c9;
+      text-decoration: line-through;
+    }
+    .subject::after {
+      content: attr(data-tooltip);
+      display: none;
+      position: absolute;
+      left: 105%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      font-size: 0.75rem;
+      z-index: 10;
+    }
+    .subject.locked:hover::after {
+      display: block;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Malla Curricular - Tecnología Médica UCV</h1>
-    <div id="progress">Progreso: 0% | Créditos: 0</div>
-    <button id="resetBtn">Reiniciar malla</button>
+    <h1>Malla Interactiva – Tecnología Médica – UCV</h1>
+    <p>Avance total: <span id="porcentaje">0%</span> | Créditos acumulados: <span id="creditos">0</span></p>
   </header>
-  <main id="malla"></main>
+  <button class="reset-btn" onclick="reiniciarMalla()">Reiniciar malla</button>
+  <div class="grid" id="malla"></div>
 
   <script>
-    const cursosData = [
-      {
-        ciclo: 'Ciclo I',
-        cursos: [
-          { nombre: 'Pensamiento Lógico', creditos: 4.5 },
-          { nombre: 'Habilidades Comunicativas', creditos: 4.5 },
-          { nombre: 'Objetivos de Desarrollo Sostenible', creditos: 4 },
-          { nombre: 'Fundamentos de Laboratorio Clínico', creditos: 5 },
-          { nombre: 'Inglés I', creditos: 2 },
-          { nombre: 'Computación I', creditos: 0 },
-        ]
-      },
-      {
-        ciclo: 'Ciclo II',
-        cursos: [
-          { nombre: 'Cambio Climático y Gestión de Riesgos', creditos: 5 },
-          { nombre: 'Cátedra Vallejo', creditos: 4 },
-          { nombre: 'Salud Pública', creditos: 5, prerequisitos: ['Computación I'] },
-          { nombre: 'Química Inorgánica y Orgánica', creditos: 5 },
-          { nombre: 'Inglés II', creditos: 2, prerequisitos: ['Inglés I'] },
-          { nombre: 'Computación II', creditos: 0, prerequisitos: ['Computación I'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo III',
-        cursos: [
-          { nombre: 'Creatividad e Innovación', creditos: 4.5 },
-          { nombre: 'Filosofía y Ética', creditos: 4 },
-          { nombre: 'Biología Celular', creditos: 6.5, prerequisitos: ['Computación II', 'Química Inorgánica y Orgánica'] },
-          { nombre: 'Estadística y Análisis de Datos', creditos: 4 },
-          { nombre: 'Inglés III', creditos: 2, prerequisitos: ['Inglés II'] },
-          { nombre: 'Computación III', creditos: 0, prerequisitos: ['Computación II'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo IV',
-        cursos: [
-          { nombre: 'Metodología de la Investigación Científica', creditos: 4, prerequisitos: ['Estadística y Análisis de Datos'] },
-          { nombre: 'Morfofisiología', creditos: 5 },
-          { nombre: 'Bioquímica y Biología Molecular', creditos: 6 },
-          { nombre: 'Histología y Embriología', creditos: 5, prerequisitos: ['Computación III'] },
-          { nombre: 'Inglés IV', creditos: 2, prerequisitos: ['Inglés III'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo V',
-        cursos: [
-          { nombre: 'Constitución y Derechos Humanos', creditos: 4 },
-          { nombre: 'Hematología y Hemostasia', creditos: 6.5, prerequisitos: ['Histología y Embriología'] },
-          { nombre: 'Bioquímica Clínica', creditos: 5, prerequisitos: ['Bioquímica y Biología Molecular'] },
-          { nombre: 'Epidemiología', creditos: 4.5 },
-          { nombre: 'Inglés V', creditos: 2, prerequisitos: ['Inglés IV'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo VI',
-        cursos: [
-          { nombre: 'Citogenética Humana', creditos: 3.5, prerequisitos: ['Bioquímica y Biología Molecular'] },
-          { nombre: 'Inmunología', creditos: 6, prerequisitos: ['Hematología y Hemostasia'] },
-          { nombre: 'Bacteriología y Virología', creditos: 6.5, prerequisitos: ['Bioquímica Clínica'] },
-          { nombre: 'Experiencia Curricular Electiva', creditos: 4 },
-          { nombre: 'Inglés VI', creditos: 2, prerequisitos: ['Inglés V'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo VII',
-        cursos: [
-          { nombre: 'Micología y Parasitología', creditos: 7, prerequisitos: ['Bacteriología y Virología'] },
-          { nombre: 'Gestión de Calidad en Laboratorio Clínico', creditos: 3, prerequisitos: ['Bioquímica Clínica'] },
-          { nombre: 'Técnicas en Anatomía Patológica', creditos: 5, prerequisitos: ['Inmunología'] },
-          { nombre: 'Farmacología y Toxicología', creditos: 5, prerequisitos: ['Bioquímica Clínica'] },
-          { nombre: 'Inglés VII', creditos: 2, prerequisitos: ['Inglés VI'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo VIII',
-        cursos: [
-          { nombre: 'Hematología Clínica y Medicina Transfusional', creditos: 7, prerequisitos: ['Inmunología'] },
-          { nombre: 'Citopatología', creditos: 4, prerequisitos: ['Citogenética Humana', 'Técnicas en Anatomía Patológica'] },
-          { nombre: 'Gestión de Proyectos', creditos: 5 },
-          { nombre: 'Experiencia Curricular Electiva', creditos: 4 },
-          { nombre: 'Inglés VIII', creditos: 2, prerequisitos: ['Inglés VII'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo IX',
-        cursos: [
-          { nombre: 'Trabajo de Investigación I', creditos: 4, prerequisitos: [
-            'Objetivos de Desarrollo Sostenible','Inglés I','Cátedra Vallejo','Inglés II','Inglés III','Inglés IV','Constitución y Derechos Humanos','Inglés V','Inglés VI','Filosofía y Ética','Inglés VII','Inglés VIII','Estadística y Análisis de Datos','Metodología de la Investigación Científica','Pensamiento Lógico','Habilidades Comunicativas','Cambio Climático y Gestión de Riesgos','Salud Pública','Creatividad e Innovación','Morfofisiología','Histología y Embriología','Epidemiología','Gestión de Proyectos','Fundamentos de Laboratorio Clínico','Química Inorgánica y Orgánica','Biología Celular','Bioquímica y Biología Molecular','Hematología y Hemostasia','Bioquímica Clínica','Citogenética Humana','Inmunología','Bacteriología y Virología','Gestión de Calidad en Laboratorio Clínico','Micología y Parasitología','Técnicas en Anatomía Patológica','Farmacología y Toxicología','Hematología Clínica y Medicina Transfusional','Citopatología'
-          ] },
-          { nombre: 'Internado I', creditos: 23, prerequisitos: [
-            'Objetivos de Desarrollo Sostenible','Inglés I','Cátedra Vallejo','Inglés II','Inglés III','Inglés IV','Constitución y Derechos Humanos','Inglés V','Inglés VI','Filosofía y Ética','Inglés VII','Inglés VIII','Estadística y Análisis de Datos','Metodología de la Investigación Científica','Pensamiento Lógico','Habilidades Comunicativas','Cambio Climático y Gestión de Riesgos','Salud Pública','Creatividad e Innovación','Morfofisiología','Histología y Embriología','Epidemiología','Gestión de Proyectos','Fundamentos de Laboratorio Clínico','Química Inorgánica y Orgánica','Biología Celular','Bioquímica y Biología Molecular','Hematología y Hemostasia','Bioquímica Clínica','Citogenética Humana','Inmunología','Bacteriología y Virología','Gestión de Calidad en Laboratorio Clínico','Micología y Parasitología','Técnicas en Anatomía Patológica','Farmacología y Toxicología','Hematología Clínica y Medicina Transfusional','Citopatología'
-          ] },
-          { nombre: 'Inglés IX', creditos: 2, prerequisitos: ['Inglés VIII'] },
-        ]
-      },
-      {
-        ciclo: 'Ciclo X',
-        cursos: [
-          { nombre: 'Trabajo de Investigación II', creditos: 4, prerequisitos: ['Trabajo de Investigación I'] },
-          { nombre: 'Internado II', creditos: 23, prerequisitos: ['Internado I'] },
-          { nombre: 'Inglés X', creditos: 2, prerequisitos: ['Inglés IX'] },
-        ]
+    const malla = {
+      "Ciclo I": [
+        { nombre: "Pensamiento Lógico", creditos: 4.5 },
+        { nombre: "Habilidades Comunicativas", creditos: 4.5 },
+        { nombre: "Objetivos de Desarrollo Sostenible", creditos: 4 },
+        { nombre: "Fundamentos de Laboratorio Clínico", creditos: 5 },
+        { nombre: "Inglés I", creditos: 2 },
+        { nombre: "Computación I", creditos: 0 }
+      ],
+      "Ciclo II": [
+        { nombre: "Cambio Climático y Gestión de Riesgos", creditos: 5 },
+        { nombre: "Cátedra Vallejo", creditos: 4 },
+        { nombre: "Salud Pública", creditos: 5, requisitos: ["Computación I"] },
+        { nombre: "Química Inorgánica y Orgánica", creditos: 5 },
+        { nombre: "Inglés II", creditos: 2, requisitos: ["Inglés I"] },
+        { nombre: "Computación II", creditos: 0, requisitos: ["Computación I"] }
+      ],
+      "Ciclo III": [
+        { nombre: "Creatividad e Innovación", creditos: 4.5 },
+        { nombre: "Filosofía y Ética", creditos: 4 },
+        { nombre: "Biología Celular", creditos: 6.5, requisitos: ["Computación II", "Química Inorgánica y Orgánica"] },
+        { nombre: "Estadística y Análisis de Datos", creditos: 4 },
+        { nombre: "Inglés III", creditos: 2, requisitos: ["Inglés II"] },
+        { nombre: "Computación III", creditos: 0, requisitos: ["Computación II"] }
+      ],
+      "Ciclo IV": [
+        { nombre: "Metodología de la Investigación Científica", creditos: 4, requisitos: ["Estadística y Análisis de Datos"] },
+        { nombre: "Morfofisiología", creditos: 5 },
+        { nombre: "Bioquímica y Biología Molecular", creditos: 6 },
+        { nombre: "Histología y Embriología", creditos: 5, requisitos: ["Computación III"] },
+        { nombre: "Inglés IV", creditos: 2, requisitos: ["Inglés III"] }
+      ],
+      "Ciclo V": [
+        { nombre: "Constitución y Derechos Humanos", creditos: 4 },
+        { nombre: "Hematología y Hemostasia", creditos: 6.5, requisitos: ["Histología y Embriología"] },
+        { nombre: "Bioquímica Clínica", creditos: 5, requisitos: ["Bioquímica y Biología Molecular"] },
+        { nombre: "Epidemiología", creditos: 4.5 },
+        { nombre: "Inglés V", creditos: 2, requisitos: ["Inglés IV"] }
+      ],
+      "Ciclo VI": [
+        { nombre: "Citogenética Humana", creditos: 3.5, requisitos: ["Bioquímica y Biología Molecular"] },
+        { nombre: "Inmunología", creditos: 6, requisitos: ["Hematología y Hemostasia"] },
+        { nombre: "Bacteriología y Virología", creditos: 6.5, requisitos: ["Bioquímica Clínica"] },
+        { nombre: "Experiencia Curricular Electiva", creditos: 4 },
+        { nombre: "Inglés VI", creditos: 2, requisitos: ["Inglés V"] }
+      ],
+      "Ciclo VII": [
+        { nombre: "Micología y Parasitología", creditos: 7, requisitos: ["Bacteriología y Virología"] },
+        { nombre: "Gestión de Calidad en Laboratorio Clínico", creditos: 3, requisitos: ["Bioquímica Clínica"] },
+        { nombre: "Técnicas en Anatomía Patológica", creditos: 5, requisitos: ["Inmunología"] },
+        { nombre: "Farmacología y Toxicología", creditos: 5, requisitos: ["Bioquímica Clínica"] },
+        { nombre: "Inglés VII", creditos: 2, requisitos: ["Inglés VI"] }
+      ],
+      "Ciclo VIII": [
+        { nombre: "Hematología Clínica y Medicina Transfusional", creditos: 7, requisitos: ["Inmunología"] },
+        { nombre: "Citopatología", creditos: 4, requisitos: ["Citogenética Humana", "Técnicas en Anatomía Patológica"] },
+        { nombre: "Gestión de Proyectos", creditos: 5 },
+        { nombre: "Experiencia Curricular Electiva", creditos: 4 },
+        { nombre: "Inglés VIII", creditos: 2, requisitos: ["Inglés VII"] }
+      ],
+      "Ciclo IX": [
+        { nombre: "Trabajo de Investigación I", creditos: 4, requisitos: ["Gestión de Proyectos", "Inglés VIII"] },
+        { nombre: "Internado I", creditos: 23, requisitos: ["Citopatología", "Hematología Clínica y Medicina Transfusional"] },
+        { nombre: "Inglés IX", creditos: 2, requisitos: ["Inglés VIII"] }
+      ],
+      "Ciclo X": [
+        { nombre: "Trabajo de Investigación II", creditos: 4, requisitos: ["Trabajo de Investigación I"] },
+        { nombre: "Internado II", creditos: 23, requisitos: ["Internado I"] },
+        { nombre: "Inglés X", creditos: 2, requisitos: ["Inglés IX"] }
+      ]
+    };
+
+    const container = document.getElementById("malla");
+    const porcentajeSpan = document.getElementById("porcentaje");
+    const creditosSpan = document.getElementById("creditos");
+    const aprobadas = JSON.parse(localStorage.getItem("materiasAprobadas") || "[]");
+
+    function guardar() {
+      localStorage.setItem("materiasAprobadas", JSON.stringify(aprobadas));
+    }
+
+    function reiniciarMalla() {
+      if (confirm("¿Seguro que quieres reiniciar la malla?")) {
+        localStorage.removeItem("materiasAprobadas");
+        location.reload();
       }
-    ];
-    // Todo el resto del código es correcto y funcional.
+    }
+
+    function crearMalla() {
+      container.innerHTML = '';
+      let totalCreditos = 0;
+      let creditosObtenidos = 0;
+
+      Object.entries(malla).forEach(([ciclo, materias]) => {
+        const col = document.createElement("div");
+        col.className = "cycle";
+        col.innerHTML = `<h2>${ciclo}</h2>`;
+
+        materias.forEach(mat => {
+          totalCreditos += mat.creditos;
+          const div = document.createElement("div");
+          div.className = "subject";
+          div.textContent = `${mat.nombre} (${mat.creditos} créditos)`;
+
+          const cumplidos = (mat.requisitos || []).every(r => aprobadas.includes(r));
+          const estaAprobada = aprobadas.includes(mat.nombre);
+
+          if (estaAprobada) {
+            div.classList.add("completed");
+            creditosObtenidos += mat.creditos;
+          } else if (!cumplidos) {
+            div.classList.add("locked");
+            const pendientes = mat.requisitos?.filter(r => !aprobadas.includes(r)) || [];
+            div.dataset.tooltip = `Falta: ${pendientes.join(", ")}`;
+          }
+
+          div.addEventListener("click", () => {
+            if (div.classList.contains("locked")) return;
+            const index = aprobadas.indexOf(mat.nombre);
+            if (index > -1) {
+              aprobadas.splice(index, 1);
+            } else {
+              aprobadas.push(mat.nombre);
+            }
+            guardar();
+            crearMalla();
+          });
+
+          col.appendChild(div);
+        });
+
+        container.appendChild(col);
+      });
+
+      const porcentaje = ((creditosObtenidos / totalCreditos) * 100).toFixed(1);
+      porcentajeSpan.textContent = `${porcentaje}%`;
+      creditosSpan.textContent = creditosObtenidos;
+    }
+
+    crearMalla();
   </script>
 </body>
 </html>
