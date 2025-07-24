@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Curricular - Tecnología Médica (UCV)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 40px;
+      color: #0074b7;
+    }
+    .ciclo {
+      margin-bottom: 30px;
+    }
+    .curso {
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      display: inline-block;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .curso:hover {
+      background-color: #e6f7ff;
+    }
+    .aprobado {
+      text-decoration: line-through;
+      background-color: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+    .bloqueado {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular - Tecnología Médica de Laboratorio Clínico (UCV)</h1>
+  <div id="malla"></div>
+
+  <script>
+    const cursos = {
+      'Ciclo I 🥼': [
+        'Pensamiento Lógico',
+        'Habilidades Comunicativas',
+        'Objetivos de Desarrollo Sostenible',
+        'Fundamentos de Laboratorio Clínico',
+        'Inglés I',
+        'Computación I',
+      ],
+      'Ciclo II 🥼': [
+        ['Cambio Climático y Gestión de Riesgos'],
+        ['Cátedra Vallejo'],
+        ['Salud Pública', ['Computación I']],
+        ['Química Inorgánica y Orgánica'],
+        ['Inglés II', ['Inglés I']],
+        ['Computación II', ['Computación I']],
+      ],
+      'Ciclo III 🔬': [
+        ['Creatividad e Innovación'],
+        ['Filosofía y Ética'],
+        ['Biología Celular', ['Computación II', 'Química Inorgánica y Orgánica']],
+        ['Estadística y Análisis de Datos'],
+        ['Inglés III', ['Inglés II']],
+        ['Computación III', ['Computación II']],
+      ],
+      'Ciclo IV 🧪': [
+        ['Metodología de la Investigación Científica', ['Estadística y Análisis de Datos']],
+        ['Morfofisiología'],
+        ['Bioquímica y Biología Molecular'],
+        ['Histología y Embriología', ['Computación III']],
+        ['Inglés IV', ['Inglés III']],
+      ],
+      'Ciclo V 🩸': [
+        ['Constitución y Derechos Humanos'],
+        ['Hematología y Hemostasia', ['Histología y Embriología']],
+        ['Bioquímica Clínica', ['Bioquímica y Biología Molecular']],
+        ['Epidemiología'],
+        ['Inglés V', ['Inglés IV']],
+      ],
+      'Ciclo VI 🧫': [
+        ['Citogenética Humana', ['Bioquímica y Biología Molecular']],
+        ['Inmunología', ['Hematología y Hemostasia']],
+        ['Bacteriología y Virología', ['Bioquímica Clínica']],
+        ['Experiencia Curricular Electiva'],
+        ['Inglés VI', ['Inglés V']],
+      ],
+      'Ciclo VII 🧬': [
+        ['Micología y Parasitología', ['Bacteriología y Virología']],
+        ['Gestión de Calidad en Laboratorio Clínico', ['Bioquímica Clínica']],
+        ['Técnicas en Anatomía Patológica', ['Inmunología']],
+        ['Farmacología y Toxicología', ['Bioquímica Clínica']],
+        ['Inglés VII', ['Inglés VI']],
+      ],
+      'Ciclo VIII 🩸': [
+        ['Hematología Clínica y Medicina Transfusional', ['Inmunología']],
+        ['Citopatología', ['Citogenética Humana', 'Técnicas en Anatomía Patológica']],
+        ['Gestión de Proyectos'],
+        ['Experiencia Curricular Electiva'],
+        ['Inglés VIII', ['Inglés VII']],
+      ],
+      'Ciclo IX 🥼🔬': [
+        ['Trabajo de Investigación I', [
+          'Objetivos de Desarrollo Sostenible','Inglés I','Cátedra Vallejo','Inglés II','Inglés III','Inglés IV',
+          'Constitución y Derechos Humanos','Inglés V','Inglés VI','Filosofía y Ética','Inglés VII','Inglés VIII',
+          'Estadística y Análisis de Datos','Metodología de la Investigación Científica','Pensamiento Lógico',
+          'Habilidades Comunicativas','Cambio Climático y Gestión de Riesgos','Salud Pública','Creatividad e Innovación',
+          'Morfofisiología','Histología y Embriología','Epidemiología','Gestión de Calidad en Laboratorio Clínico',
+          'Fundamentos de Laboratorio Clínico','Química Inorgánica y Orgánica','Biología Celular','Bioquímica y Biología Molecular',
+          'Hematología y Hemostasia','Bioquímica Clínica','Citogenética Humana','Inmunología','Bacteriología y Virología',
+          'Micología y Parasitología','Técnicas en Anatomía Patológica','Farmacología y Toxicología',
+          'Hematología Clínica y Medicina Transfusional','Citopatología']
+        ],
+        ['Internado I', [
+          'Objetivos de Desarrollo Sostenible','Inglés I','Cátedra Vallejo','Inglés II','Inglés III','Inglés IV',
+          'Constitución y Derechos Humanos','Inglés V','Inglés VI','Filosofía y Ética','Inglés VII','Inglés VIII',
+          'Estadística y Análisis de Datos','Metodología de la Investigación Científica','Pensamiento Lógico',
+          'Habilidades Comunicativas','Cambio Climático y Gestión de Riesgos','Salud Pública','Creatividad e Innovación',
+          'Morfofisiología','Histología y Embriología','Epidemiología','Gestión de Calidad en Laboratorio Clínico',
+          'Fundamentos de Laboratorio Clínico','Química Inorgánica y Orgánica','Biología Celular','Bioquímica y Biología Molecular',
+          'Hematología y Hemostasia','Bioquímica Clínica','Citogenética Humana','Inmunología','Bacteriología y Virología',
+          'Micología y Parasitología','Técnicas en Anatomía Patológica','Farmacología y Toxicología',
+          'Hematología Clínica y Medicina Transfusional','Citopatología']
+        ],
+        ['Inglés IX', ['Inglés VIII']],
+      ],
+      'Ciclo X 🥼🔬': [
+        ['Trabajo de Investigación II', ['Trabajo de Investigación I']],
+        ['Internado II', ['Internado I']],
+        ['Inglés X', ['Inglés IX']],
+      ]
+    };
+
+    const aprobados = new Set();
+
+    function puedeDesbloquear(prerequisitos) {
+      return Array.isArray(prerequisitos) && prerequisitos.every(p => aprobados.has(p));
+    }
+
+    function renderMalla() {
+      const cont = document.getElementById('malla');
+      cont.innerHTML = '';
+      for (const ciclo in cursos) {
+        const div = document.createElement('div');
+        div.className = 'ciclo';
+        const h2 = document.createElement('h2');
+        h2.textContent = '🧪 ' + ciclo + ' 🔬';
+        div.appendChild(h2);
+
+        cursos[ciclo].forEach(curso => {
+          let nombre, prereqs = [];
+          if (typeof curso === 'string') {
+            nombre = curso;
+          } else {
+            nombre = curso[0];
+            prereqs = Array.isArray(curso[1]) ? curso[1] : [];
+          }
+
+          const span = document.createElement('span');
+          span.className = 'curso';
+          if (aprobados.has(nombre)) {
+            span.classList.add('aprobado');
+          } else if (prereqs.length && !puedeDesbloquear(prereqs)) {
+            span.classList.add('bloqueado');
+          }
+
+          span.textContent = nombre;
+          span.onclick = () => {
+            if (span.classList.contains('bloqueado')) return;
+            if (aprobados.has(nombre)) {
+              aprobados.delete(nombre);
+            } else {
+              aprobados.add(nombre);
+            }
+            renderMalla();
+          };
+
+          div.appendChild(span);
+        });
+        cont.appendChild(div);
+      }
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
